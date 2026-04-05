@@ -1,0 +1,21 @@
+# Environnement virtuel
+venv/
+env/
+.env
+
+# Cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Base de données (Optionnel : garde-la si tu veux partager tes tests)
+# data/database.db
+
+# Fichiers générés (Exports et QR Codes)
+exports/*.xlsx
+static/qrcodes/*.png
+
+# Dossiers système Mac
+.DS_Store
+.AppleDouble
+.LSOverride

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borne de Pointage - Scan QR</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { 
+            background-color: #f8f9fa; 
+            font-family: 'Segoe UI', sans-serif; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container { max-width: 600px; }
+        
+        /* Style pour le conteneur de la caméra */
+        #reader { 
+            width: 100%; 
+            border-radius: 20px; 
+            overflow: hidden; 
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
+            border: 5px solid #fff;
+        }
+        
+        #reader video { border-radius: 15px; }
+
+        /* Style des messages flash agrandis */
+        .alert-pointage {
+            border-radius: 15px;
+            border: none;
+            padding: 20px;
+            margin-top: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .logo-img {
+            height: 80px;
+            margin-bottom: 15px;
+            object-fit: contain;
+        }
+
+        .btn-admin { margin-top: 40px; }
+    </style>
+</head>
+<body class="py-5">
+
+    <div class="container text-center">
+        <div class="mb-4">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+            <h1 class="fw-bold text-dark">SYSTÈME DE POINTAGE</h1>
+            <p class="text-muted">Présentez votre badge devant la caméra pour pointer</p>
+        </div>
+
+        <div id="reader"></div>
+
+        <div class="result-card">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }} alert-pointage shadow-sm">
+                    <h3 class="mb-0">
+                        {{ "✅" if category == 'success' else "❌" if category == 'danger' else "⚠️" }} 
+                        {{ message }}
+                    </h3>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+        </div>
+
+        <form id="pointage-form" action="/pointer" method="POST" style="display: none;">
+            <input type="text" name="matricule" id="matricule-input">
+        </form>
+
+        <div class="btn-admin">
+            <a href="/admin" class="btn btn-outline-secondary btn-sm opacity-50">Accès Administration</a>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    
+    <script>
+        // 1. Préparation du son (Bip)
+        const beep = new Audio("https://www.soundjay.com/button/beep-07.wav");
+
+        // 2. Fonction appelée quand un QR Code est détecté
+        function onScanSuccess(decodedText, decodedResult) {
+            // Jouer le son du bip
+            beep.play().catch(e => console.log("Audio play blocked")); 
+            
+            // On arrête le scanner immédiatement pour ne pas envoyer 10 requêtes
+            html5QrcodeScanner.clear();
+            
+            // On remplit le matricule et on envoie le formulaire
+            document.getElementById('matricule-input').value = decodedText;
+            document.getElementById('pointage-form').submit();
+        }
+
+        function onScanFailure(error) {
+            // On ignore les erreurs mineures pendant la recherche
+        }
+
+        // 3. Configuration et lancement du scanner
+        let html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", 
+            { 
+                fps: 15, // Plus fluide
+                qrbox: { width: 280, height: 280 },
+                aspectRatio: 1.0
+            }
+        );
+        
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+    </script>
+</body>
+</html>
