@@ -1,41 +1,36 @@
-# Système de Gestion RH & Pointage par QR Code
+# PROJET GESTION RH - POINTAGE PAR QR CODE
 
-Ce projet est une solution logicielle complète permettant de gérer les temps de présence en entreprise. Il combine la puissance de **Flask** pour la capture de données en temps réel et **Streamlit** pour le pilotage administratif.
-
----
-
-## Fonctionnalités Clés
-
-### 🕒 Pointage Hybride
-* **Borne Fixe :** Interface de scan via la caméra du Mac/PC (Flask).
-* **Pointage Mobile :** Affiche murale avec QR Code permettant aux employés de pointer avec leur propre smartphone.
-
-### Dashboard Administrateur (Streamlit)
-* **Statistiques en temps réel :** Nombre d'employés présents, flux d'activité.
-* **Interface Pro :** Titre encadré, menu de navigation latéral et horloge dynamique.
-* **Historique :** Journal complet des entrées/sorties avec recherche.
-
-### 🗂️ Gestion des Données
-* **Importation Massive :** Chargement de la base employés via fichiers **Excel** ou **CSV**.
-* **Génération Automatique :** Création instantanée des badges QR Code individuels lors de l'import.
-* **Exports :** Extraction des rapports de présence au format Excel.
+### **PRÉSENTATION DU SYSTÈME**
+CE PROJET EST UNE SOLUTION LOGICIELLE COMPLÈTE CONÇUE POUR LE PILOTAGE DES RESSOURCES HUMAINES ET LA GESTION DES TEMPS DE PRÉSENCE. IL ALLIE LA FLUIDITÉ DE **FLASK** POUR LA CAPTURE DE DONNÉES ET LA PUISSANCE DE **STREAMLIT** POUR L'ADMINISTRATION ANALYTIQUE.
 
 ---
 
-## Installation & Configuration
+### **FONCTIONNALITÉS CLÉS**
 
-### 1. Prérequis
-* Python 3.10+
-* Navigateur Web (Chrome, Safari, Firefox)
+#### **🕒 SYSTÈME DE POINTAGE HYBRIDE**
+* **BORNE FIXE :** INTERFACE DE SCAN VIA LA CAMÉRA DU POSTE DE TRAVAIL (FLASK).
+* **POINTAGE MOBILE :** GÉNÉRATION D'UNE AFFICHE MURALE AVEC QR CODE PERMETTANT AUX EMPLOYÉS DE POINTER VIA LEURS SMARTPHONES (CONNEXION WI-FI LOCALE).
 
-### 2. Mise en place
+#### **🖥️ DASHBOARD ADMINISTRATEUR PREMIUM (STREAMLIT)**
+* **STATISTIQUES EN TEMPS RÉEL :** VISUALISATION IMMÉDIATE DE L'EFFECTIF TOTAL, DES PRÉSENTS ET DES MOUVEMENTS DU JOUR.
+* **INTERFACE MODERNE :** MENU DE NAVIGATION AVEC ICÔNES BOOTSTRAP, LOGO CENTRÉ ET HORLOGE DYNAMIQUE SYNCHRONISÉE.
+* **TROMBINOSCOPE INDIVIDUEL :** RÉCUPÉRATION RAPIDE DU BADGE QR CODE VIA UNE LISTE DÉROULANTE ERGONOMIQUE.
+* **HISTORIQUE COMPLET :** JOURNAL DÉTAILLÉ DES ENTRÉES ET SORTIES AVEC TRI CHRONOLOGIQUE.
+
+#### **🗂️ GESTION ET IMPORTATION DES DONNÉES**
+* **IMPORTATION MASSIVE :** CHARGEMENT RAPIDE DES EMPLOYÉS VIA FICHIERS **EXCEL** OU **CSV**.
+* **GÉNÉRATION AUTOMATIQUE :** CRÉATION INSTANTANÉE DES BADGES QR CODE LORS DE L'IMPORTATION DANS LE DOSSIER `STATIC/QRCODES`.
+* **EXPORTS PROFESSIONNELS :** EXTRACTION DES RAPPORTS DE PRÉSENCE AU FORMAT EXCEL POUR LA PAIE.
+
+---
+
+### **INSTALLATION ET CONFIGURATION**
+
+#### **1. PRÉREQUIS**
+* **PYTHON 3.10+**
+* **ENVIRONNEMENT VIRTUEL (RECOMMANDÉ)**
+
+#### **2. MISE EN PLACE**
 ```bash
-# Accéder au dossier du projet
+# ACCÉDER AU DOSSIER DU PROJET
 cd PROJET_RH_APP
-
-# Créer l'environnement virtuel
-python3 -m venv venv
-source venv/bin/activate
-
-# Installer les dépendances
-pip install -r requirements.txt

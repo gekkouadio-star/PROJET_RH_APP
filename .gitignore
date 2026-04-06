@@ -1,21 +1,33 @@
-# Environnement virtuel
+# --- ENVIRONNEMENT VIRTUEL ---
 venv/
 env/
 .env
 
-# Cache Python
+# --- CACHE PYTHON ---
 __pycache__/
 *.py[cod]
 *$py.class
+.ipynb_checkpoints/
 
-# Base de données (Optionnel : garde-la si tu veux partager tes tests)
-# data/database.db
+# --- CONFIGURATION STREAMLIT ---
+.streamlit/
+static/logo.png
 
-# Fichiers générés (Exports et QR Codes)
+# --- BASE DE DONNÉES ---
+# ON NE SUIT PAS LA DB POUR ÉVITER D'ÉCRASER LES DONNÉES RÉELLES EN PRODUCTION
+data/*.db
+data/*.sqlite
+
+# --- FICHIERS GÉNÉRÉS (EXPORTS ET QR CODES) ---
+# ON GARDE LES DOSSIERS MAIS ON IGNORE LES FICHIERS À L'INTÉRIEUR
 exports/*.xlsx
+exports/*.csv
 static/qrcodes/*.png
+!static/qrcodes/.gitkeep
 
-# Dossiers système Mac
+# --- DOSSIERS SYSTÈME (MAC / WINDOWS) ---
 .DS_Store
 .AppleDouble
 .LSOverride
+Thumbs.db
+desktop.ini

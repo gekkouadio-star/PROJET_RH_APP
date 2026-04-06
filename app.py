@@ -15,6 +15,7 @@ app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-key-7b9e2c1a4f0d')
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+# Base de données située dans le dossier /data
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'data', 'database.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['EXPORT_FOLDER'] = os.path.join(basedir, 'exports')
@@ -38,6 +39,11 @@ class Pointage(db.Model):
 
 # --- ROUTES FRONTEND (POINTAGE) ---
 
+# Permet à un employé de voir son propre QR Code sur son smartphone
+@app.route('/mon_badge/<matricule>')
+def mon_badge(matricule):
+    return f'<h1>Badge de {matricule}</h1><img src="/static/qrcodes/{matricule}.png" width="300">'
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -53,13 +59,14 @@ def pointer():
 
     dernier_p = Pointage.query.filter_by(user_id=user.id).order_by(Pointage.timestamp.desc()).first()
 
-    # SECURITE : 2 minutes entre deux scans
+    # SECURITE : Anti-double scan (2 minutes entre deux mouvements)
     if dernier_p:
         diff = datetime.now() - dernier_p.timestamp
         if diff.total_seconds() < 120:
             flash("Action trop rapide ! Attendez 2 minutes.", "warning")
             return redirect(url_for('index'))
 
+    # Logique de bascule ENTREE/SORTIE
     type_m = 'ENTREE'
     if dernier_p and dernier_p.type_mouvement == 'ENTREE':
         type_m = 'SORTIE'
@@ -75,8 +82,7 @@ def pointer():
 
 @app.route('/admin')
 def admin():
-    # --- AJOUT SECURITE MOT DE PASSE ---
-    # Pour accéder, il faudra utiliser : /admin?pw=1234
+    # Protection simple par URL : /admin?pw=1234
     password = request.args.get('pw')
     if password != "1234": 
         return "<h1>Accès refusé</h1><p>Vous n'avez pas l'autorisation de consulter cette page sans le code secret.</p>", 403
@@ -104,10 +110,12 @@ def add_user():
     
     if nom and matricule:
         try:
+            # Création de l'utilisateur en BDD
             new_user = User(nom=nom, matricule=matricule, taux_horaire=float(taux))
             db.session.add(new_user)
             db.session.commit()
 
+            # Création physique du QR Code
             qr_folder = os.path.join(basedir, 'static', 'qrcodes')
             os.makedirs(qr_folder, exist_ok=True)
             qr_path = os.path.join(qr_folder, f"{matricule}.png")
@@ -127,6 +135,7 @@ def export_excel():
     final_data = []
 
     for user in users:
+        # Récupère tous les mouvements de l'employé
         ps = Pointage.query.filter_by(user_id=user.id).order_by(Pointage.timestamp.asc()).all()
         entree = None
         for p in ps:
@@ -148,12 +157,13 @@ def export_excel():
                     'Taux Horaire': f"{user.taux_horaire} €",
                     'Salaire Total': f"{round(gain, 2)} €"
                 })
-                entree = None
+                entree = None # Reset pour le prochain cycle
 
     if not final_data:
         flash("Aucun cycle complet trouvé.", "warning")
         return redirect(url_for('admin'))
 
+    # Génération du fichier Excel
     df = pd.DataFrame(final_data)
     filename = f"Paie_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx"
     filepath = os.path.join(app.config['EXPORT_FOLDER'], filename)
@@ -169,10 +179,10 @@ def delete_user(user_id):
         if os.path.exists(qr_path):
             os.remove(qr_path)
         
-        # 2. Supprimer les pointages associés (cascade)
+        # 2. Supprimer les pointages associés
         Pointage.query.filter_by(user_id=user.id).delete()
         
-        # 3. Supprimer l'utilisateur
+        # 3. Supprimer l'utilisateur de la BDD
         db.session.delete(user)
         db.session.commit()
         flash(f"L'employé {user.nom} a été supprimé avec succès.", "success")
@@ -182,11 +192,13 @@ def delete_user(user_id):
         
     return redirect(url_for('admin'))
 
-# --- LANCEMENT AVEC ACCÈS RÉSEAU ---
+# --- LANCEMENT ---
 if __name__ == '__main__':
     with app.app_context():
+        # Création des dossiers si inexistants
         os.makedirs(os.path.join(basedir, 'data'), exist_ok=True)
         os.makedirs(app.config['EXPORT_FOLDER'], exist_ok=True)
         db.create_all() 
-    # host='0.0.0.0' permet à n'importe quel appareil sur ton Wi-Fi d'accéder au site
+    
+    # host='0.0.0.0' est indispensable pour que les smartphones voient le serveur
     app.run(debug=True, host='0.0.0.0', port=5000)
